@@ -31,7 +31,14 @@ overpass.query_streets = function(callback) {
   //query = query + 'node(r);'
   query = query + overpass.query_suffix
   
-  $.getJSON(query, function(json_data) {
-    callback(json_data)
-  });
+  if (typeof testdata=="undefined")
+  {
+    $.getJSON(query, function(json_data) {
+      callback(json_data)
+    });
+  }
+  else
+  {
+    callback(testdata)
+  }
 }
