@@ -17,6 +17,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.5.0/proj4.js"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.5.1/snap.svg.js"></script>
+    <script src="projection.js"></script>
     <script src="overpass.js"></script>
     <script src="testdata.json"></script>
     
@@ -32,70 +33,78 @@
     var wgs_bbox = [[52.40021943419403, 10.158920288085938], [52.423726814004645, 10.202608108520508]];
     var size = [$("#svg").width(), $("#svg").height()];
     
-    var Projection = function(bbox, size) {
-      this.projection = proj4("WGS84", "EPSG:3857");
-      this.bbox=bbox;
-      this.size=size;
-      this.merc_bbox=[this.projection.forward(wgs_bbox[0]), this.projection.forward(wgs_bbox[1])];
-
-      var scalefactor1=(this.merc_bbox[1][0]-this.merc_bbox[0][0])/this.size[1];
-      var scalefactor2=(this.merc_bbox[1][1]-this.merc_bbox[0][1])/this.size[0];
-      this.scale = (scalefactor1 > scalefactor2) ? scalefactor1 : scalefactor2;
-    }
-    
-    Projection.prototype.convert = function(latlon) {
-      var xy=this.projection.forward(latlon);
-      var dxy=[(xy[0]-this.merc_bbox[0][0])/this.scale, (xy[1]-this.merc_bbox[0][1])/this.scale];
-      dxy=[dxy[1], this.size[1]-dxy[0]]
-      return dxy;
-    }
-    
-    
     var projection = new Projection(wgs_bbox, size);
     
+    var drawWay=function(way, nodes, style) {
+      var waypoints=[];
+      way.nodes.forEach(function (nodeid, index) {
+        var node=nodes[nodeid];
+        var xy=projection.convert([node.lat, node.lon]);
+        waypoints=waypoints.concat(xy);
+      });
+      
+      var line=s.polyline(waypoints);
+      line.attr(style);
+    }
     
-  
-    var drawData1=function(data) {
-      //loop over each element
-      for (var key in data.ways) {
-        if (data.ways.hasOwnProperty(key)) {
-          var way=data.ways[key];
-          var waypoints=[];
-          way.nodes.forEach(function (nodeid, index) {
-            var node=data.nodes[nodeid];
-            var xy=projection.convert([node.lat, node.lon]);
-            waypoints=waypoints.concat(xy);
-          });
-          
-          var line=s.polyline(waypoints);
-          line.attr({
+    var rules = [
+      {
+        "name": "tertiary",
+        "filter": function(tags){
+          return (tags.hasOwnProperty("highway") && tags.highway=="tertiary");        
+        },
+        "cycles": {
+          "streets_bg": {
+            fill: "none",
+            stroke: "#000000",
+            strokeWidth: 7
+          },
+          "streets_fg": {
+            fill: "none",
+            stroke: "#FEFEB2",
+            strokeWidth: 5
+          }
+        }
+      },
+      {
+        "name": "residential",
+        "filter": function(tags){
+          return (tags.hasOwnProperty("highway") && tags.highway=="residential");        
+        },
+        "cycles": {
+          "streets_bg": {
             fill: "none",
             stroke: "#000000",
             strokeWidth: 5
-          });
-        }
-      }
-    }
-    var drawData2=function(data) {
-      //loop over each element
-      for (var key in data.ways) {
-        if (data.ways.hasOwnProperty(key)) {
-          var way=data.ways[key];
-          var waypoints=[];
-          way.nodes.forEach(function (nodeid, index) {
-            var node=data.nodes[nodeid];
-            var xy=projection.convert([node.lat, node.lon]);
-            waypoints=waypoints.concat(xy);
-          });
-          
-          var line=s.polyline(waypoints);
-          line.attr({
+          },
+          "streets_fg": {
             fill: "none",
             stroke: "#ffffff",
             strokeWidth: 3
-          });
+          }
         }
-      }
+      },
+
+    ]
+    
+    var cycles = ["streets_bg", "streets_fg"];
+    
+    var drawData=function(data) {
+      cycles.forEach(function(cycle, index) {
+        rules.forEach(function(rule, index) {
+          if (rule.cycles.hasOwnProperty(cycle)) {
+
+            for (var key in data.ways) {
+              if (data.ways.hasOwnProperty(key)) {
+                var way=data.ways[key];
+                if (rule.filter(way.tags)) {
+                  drawWay(way, data.nodes, rule.cycles[cycle]);
+                }
+              }
+            }
+          }
+        });
+      });
     }
 
     var convertOsmData=function(osm_data) {
@@ -123,8 +132,7 @@
     
     overpass.query_streets(function(osm_data) {
           var data = convertOsmData(osm_data);
-          drawData1(data);
-          drawData2(data);          
+          drawData(data);
       });
 
     
