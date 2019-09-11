@@ -56,20 +56,40 @@
     
     var rules = [
       {
-        "name": "tertiary",
+        "name": "cycleway",
         "filter": function(tags){
-          return (tags.hasOwnProperty("highway") && tags.highway=="tertiary");        
+          return (tags.hasOwnProperty("highway") && tags.highway=="cycleway");        
         },
         "cycles": {
           "streets_bg": {
             fill: "none",
-            stroke: "#cbcb8e",
-            "stroke-width": 7
+            stroke: "#ffffff",
+            "stroke-width": 3,
+            opacity: 0.3
           },
           "streets_fg": {
             fill: "none",
-            stroke: "#FEFEB2",
+            stroke: "#F68474",
+            "stroke-width": 2,
+            "stroke-dasharray":"5,5"
+          }
+        }
+      },
+      {
+        "name": "livingstreet",
+        "filter": function(tags){
+          return (tags.hasOwnProperty("highway") && tags.highway=="living_street");        
+        },
+        "cycles": {
+          "streets_bg": {
+            fill: "none",
+            stroke: "#aaaaaa",
             "stroke-width": 5
+          },
+          "streets_fg": {
+            fill: "none",
+            stroke: "#dddddd",
+            "stroke-width": 3
           }
         }
       },
@@ -92,22 +112,20 @@
         }
       },
       {
-        "name": "cycleway",
+        "name": "tertiary",
         "filter": function(tags){
-          return (tags.hasOwnProperty("highway") && tags.highway=="cycleway");        
+          return (tags.hasOwnProperty("highway") && tags.highway=="tertiary");        
         },
         "cycles": {
           "streets_bg": {
             fill: "none",
-            stroke: "#ffffff",
-            "stroke-width": 3,
-            opacity: 0.3
+            stroke: "#cbcb8e",
+            "stroke-width": 7
           },
           "streets_fg": {
             fill: "none",
-            stroke: "#F68474",
-            "stroke-width": 2,
-            "stroke-dasharray":"5,5"
+            stroke: "#FEFEB2",
+            "stroke-width": 5
           }
         }
       },
