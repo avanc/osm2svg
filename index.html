@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Avoid IE compatibility mode, as it breaks layout -->
 
-    <title>IP</title>
+    <title>Map</title>
 
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-blue-grey.css">
@@ -16,7 +16,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.5.0/proj4.js"></script>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.5.1/snap.svg.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/3.0.13/svg.js"></script>
     <script src="projection.js"></script>
     <script src="overpass.js"></script>
     <script src="testdata.json"></script>
@@ -25,13 +25,20 @@
 
   <body>
 
-  <svg id="svg" style="width: 1000px; height: 700px;"></svg>
+  <div id="map" style="width: 1000px; height: 700px;"></div>
   
   <script>
-    var s = Snap("#svg");
-  
+    var draw;
+    SVG.on(document, 'DOMContentLoaded', function() {
+      draw = SVG().addTo('#map').size("100%", "100%");
+      overpass.query_streets(function(osm_data) {
+          var data = convertOsmData(osm_data);
+          drawData(data);
+      });
+      
+    })
     var wgs_bbox = [[52.40021943419403, 10.158920288085938], [52.423726814004645, 10.202608108520508]];
-    var size = [$("#svg").width(), $("#svg").height()];
+    var size = [$("#map").width(), $("#map").height()];
     
     var projection = new Projection(wgs_bbox, size);
     
@@ -43,7 +50,7 @@
         waypoints=waypoints.concat(xy);
       });
       
-      var line=s.polyline(waypoints);
+      var line=draw.polyline(waypoints);
       line.attr(style);
     }
     
@@ -57,12 +64,12 @@
           "streets_bg": {
             fill: "none",
             stroke: "#cbcb8e",
-            strokeWidth: 7
+            "stroke-width": 7
           },
           "streets_fg": {
             fill: "none",
             stroke: "#FEFEB2",
-            strokeWidth: 5
+            "stroke-width": 5
           }
         }
       },
@@ -75,12 +82,12 @@
           "streets_bg": {
             fill: "none",
             stroke: "#aaaaaa",
-            strokeWidth: 5
+            "stroke-width": 5
           },
           "streets_fg": {
             fill: "none",
             stroke: "#ffffff",
-            strokeWidth: 3
+            "stroke-width": 3
           }
         }
       },
@@ -93,14 +100,14 @@
           "streets_bg": {
             fill: "none",
             stroke: "#ffffff",
-            strokeWidth: 3,
+            "stroke-width": 3,
             opacity: 0.3
           },
           "streets_fg": {
             fill: "none",
             stroke: "#F68474",
-            strokeWidth: 2,
-            stroke_dasharray:"5,5"
+            "stroke-width": 2,
+            "stroke-dasharray":"5,5"
           }
         }
       },
@@ -147,13 +154,6 @@
       return { "ways": ways, "nodes": nodes };
       
     }
-
-    // converting WGS84 (GPS) to EPSG:3857 (Web Mercator)
-    
-    overpass.query_streets(function(osm_data) {
-          var data = convertOsmData(osm_data);
-          drawData(data);
-      });
 
     
   
