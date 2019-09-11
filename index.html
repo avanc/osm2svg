@@ -56,7 +56,7 @@
         "cycles": {
           "streets_bg": {
             fill: "none",
-            stroke: "#000000",
+            stroke: "#cbcb8e",
             strokeWidth: 7
           },
           "streets_fg": {
@@ -74,13 +74,33 @@
         "cycles": {
           "streets_bg": {
             fill: "none",
-            stroke: "#000000",
+            stroke: "#aaaaaa",
             strokeWidth: 5
           },
           "streets_fg": {
             fill: "none",
             stroke: "#ffffff",
             strokeWidth: 3
+          }
+        }
+      },
+      {
+        "name": "cycleway",
+        "filter": function(tags){
+          return (tags.hasOwnProperty("highway") && tags.highway=="cycleway");        
+        },
+        "cycles": {
+          "streets_bg": {
+            fill: "none",
+            stroke: "#ffffff",
+            strokeWidth: 3,
+            opacity: 0.3
+          },
+          "streets_fg": {
+            fill: "none",
+            stroke: "#F68474",
+            strokeWidth: 2,
+            stroke_dasharray:"5,5"
           }
         }
       },
