@@ -53,8 +53,33 @@
         waypoints=waypoints.concat(xy);
       });
       
-      var line=draw.polyline(waypoints);
+      var d="M " + waypoints[0] + " " + waypoints[1] + " ";
+      for (var i=2; i< waypoints.length; i=i+2) {
+        d=d+"L " + waypoints[i] + " " + waypoints[i+1] + " ";
+      }
+      
+      var line=draw.path(d);
       line.attr(style);
+      
+      var text=draw.text(function(add) {
+        add.tspan( way.tags.name )
+      });
+      text.attr({
+        fontSize: "25px",
+        "text-anchor":"middle",
+        stroke: "#ff0000",
+        "stroke-width": "1px",
+        "paint-order": "stroke" // https://www.oreilly.com/ideas/elegant-outlines-with-svg-paint-order
+      });
+      
+      text.path(line)
+      
+      text.textPath().attr({
+        startOffset: "50",
+        "alignment-baseline": "center",
+        "baseline-shift": "-15"
+      })
+      
     }
     
     
